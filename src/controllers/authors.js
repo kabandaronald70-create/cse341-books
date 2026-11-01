@@ -33,14 +33,24 @@ const createAuthor = async (req, res) => {
   try {
     const { id, name, birthYear } = req.body;
 
-    // Validation
-    if (!id || !name || birthYear === undefined) {
-      return res.status(400).json({ error: "Missing required author fields." });
+    // Strict validation: check existence AND data types
+    if (
+      !id ||
+      typeof id !== "string" ||
+      !name ||
+      typeof name !== "string" ||
+      birthYear === undefined ||
+      typeof birthYear !== "number"
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Missing or invalid required fields." });
     }
+
     if (name.trim() === "") {
       return res.status(400).json({ error: "Name cannot be empty." });
     }
-    if (typeof birthYear !== "number" || birthYear <= 0) {
+    if (birthYear <= 0) {
       return res
         .status(400)
         .json({ error: "birthYear must be a positive number." });
@@ -64,13 +74,22 @@ const updateAuthor = async (req, res) => {
     const { id } = req.params;
     const { name, birthYear } = req.body;
 
-    if (!name || birthYear === undefined) {
-      return res.status(400).json({ error: "Missing required author fields." });
+    // Strict validation: check existence AND data types
+    if (
+      !name ||
+      typeof name !== "string" ||
+      birthYear === undefined ||
+      typeof birthYear !== "number"
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Missing or invalid required fields." });
     }
+
     if (name.trim() === "") {
       return res.status(400).json({ error: "Name cannot be empty." });
     }
-    if (typeof birthYear !== "number" || birthYear <= 0) {
+    if (birthYear <= 0) {
       return res
         .status(400)
         .json({ error: "birthYear must be a positive number." });
@@ -99,11 +118,9 @@ const deleteAuthor = async (req, res) => {
 
     // Relationship check
     if (await authorHasBooks(id)) {
-      return res
-        .status(409)
-        .json({
-          error: "Author cannot be deleted because they still have books.",
-        });
+      return res.status(409).json({
+        error: "Author cannot be deleted because they still have books.",
+      });
     }
 
     await deleteAuthorFromDb(id);
