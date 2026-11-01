@@ -30,8 +30,20 @@ const createBookHandler = async (req, res) => {
   try {
     const { id, authorId, title, publicationDate } = req.body;
 
-    if (!id || !authorId || !title || !publicationDate) {
-      return res.status(400).json({ error: "Missing required fields." });
+    // Strict validation: check existence AND data types
+    if (
+      !id ||
+      typeof id !== "string" ||
+      !authorId ||
+      typeof authorId !== "string" ||
+      !title ||
+      typeof title !== "string" ||
+      !publicationDate ||
+      typeof publicationDate !== "string"
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Missing or invalid required fields." });
     }
 
     const existingBook = await getBookById(id);
@@ -56,8 +68,18 @@ const updateBookHandler = async (req, res) => {
     const { id } = req.params;
     const { authorId, title, publicationDate } = req.body;
 
-    if (!authorId || !title || !publicationDate) {
-      return res.status(400).json({ error: "Missing required fields." });
+    // Strict validation: check existence AND data types
+    if (
+      !authorId ||
+      typeof authorId !== "string" ||
+      !title ||
+      typeof title !== "string" ||
+      !publicationDate ||
+      typeof publicationDate !== "string"
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Missing or invalid required fields." });
     }
 
     const existingBook = await getBookById(id);
