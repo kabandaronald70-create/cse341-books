@@ -28,6 +28,11 @@ const getBookByIdHandler = async (req, res) => {
 
 const createBookHandler = async (req, res) => {
   try {
+    // Ultimate check for missing or empty body
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: "Request body is required." });
+    }
+
     const { id, authorId, title, publicationDate } = req.body;
 
     // Strict validation: check existence AND data types
@@ -46,6 +51,7 @@ const createBookHandler = async (req, res) => {
         .json({ error: "Missing or invalid required fields." });
     }
 
+    // Duplicate check (Application-level)
     const existingBook = await getBookById(id);
     if (existingBook)
       return res.status(400).json({ error: "Book id already exists." });
@@ -56,8 +62,21 @@ const createBookHandler = async (req, res) => {
         .status(400)
         .json({ error: "authorId does not match an existing author." });
 
-    const newBook = await createBook({ id, authorId, title, publicationDate });
-    return res.status(201).json(newBook);
+    try {
+      const newBook = await createBook({
+        id,
+        authorId,
+        title,
+        publicationDate,
+      });
+      return res.status(201).json(newBook);
+    } catch (dbError) {
+      // Catch MongoDB Duplicate Key Error (Race Condition)
+      if (dbError.code === 11000) {
+        return res.status(400).json({ error: "Book id already exists." });
+      }
+      throw dbError;
+    }
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
   }
@@ -65,6 +84,11 @@ const createBookHandler = async (req, res) => {
 
 const updateBookHandler = async (req, res) => {
   try {
+    // Ultimate check for missing or empty body
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: "Request body is required." });
+    }
+
     const { id } = req.params;
     const { authorId, title, publicationDate } = req.body;
 
