@@ -28,8 +28,8 @@ const getBookByIdHandler = async (req, res) => {
 
 const createBookHandler = async (req, res) => {
   try {
-    // Check for body BEFORE destructuring
-    if (!req.body) {
+    // Ultimate check for missing or empty body
+    if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json({ error: "Request body is required." });
     }
 
@@ -84,8 +84,8 @@ const createBookHandler = async (req, res) => {
 
 const updateBookHandler = async (req, res) => {
   try {
-    // Check for body BEFORE destructuring
-    if (!req.body) {
+    // Ultimate check for missing or empty body
+    if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json({ error: "Request body is required." });
     }
 

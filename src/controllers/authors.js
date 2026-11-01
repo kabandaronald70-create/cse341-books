@@ -31,8 +31,8 @@ const getAuthorById = async (req, res) => {
 
 const createAuthor = async (req, res) => {
   try {
-    // Check for body BEFORE destructuring
-    if (!req.body) {
+    // Ultimate check for missing or empty body
+    if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json({ error: "Request body is required." });
     }
 
@@ -62,7 +62,7 @@ const createAuthor = async (req, res) => {
         .json({ error: "birthYear must be a positive integer." });
     }
 
-    // Duplicate check (Application-level)
+    // Duplicate check
     const existingAuthor = await getAuthorByIdFromDb(id);
     if (existingAuthor) {
       return res.status(400).json({ error: "Author id already exists." });
@@ -72,7 +72,6 @@ const createAuthor = async (req, res) => {
       const createdAuthor = await createAuthorFromDb({ id, name, birthYear });
       return res.status(201).json(createdAuthor);
     } catch (dbError) {
-      // Catch MongoDB Duplicate Key Error (Race Condition)
       if (dbError.code === 11000) {
         return res.status(400).json({ error: "Author id already exists." });
       }
@@ -85,8 +84,8 @@ const createAuthor = async (req, res) => {
 
 const updateAuthor = async (req, res) => {
   try {
-    // Check for body BEFORE destructuring
-    if (!req.body) {
+    // Ultimate check for missing or empty body
+    if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json({ error: "Request body is required." });
     }
 
@@ -137,9 +136,11 @@ const deleteAuthor = async (req, res) => {
     }
 
     if (await authorHasBooks(id)) {
-      return res.status(409).json({
-        error: "Author cannot be deleted because they still have books.",
-      });
+      return res
+        .status(409)
+        .json({
+          error: "Author cannot be deleted because they still have books.",
+        });
     }
 
     await deleteAuthorFromDb(id);
