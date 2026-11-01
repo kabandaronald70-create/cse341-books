@@ -50,6 +50,7 @@ const createAuthor = async (req, res) => {
     if (name.trim() === "") {
       return res.status(400).json({ error: "Name cannot be empty." });
     }
+
     if (!Number.isInteger(birthYear) || birthYear <= 0) {
       return res
         .status(400)
@@ -89,10 +90,12 @@ const updateAuthor = async (req, res) => {
     if (name.trim() === "") {
       return res.status(400).json({ error: "Name cannot be empty." });
     }
-    if (birthYear <= 0) {
+
+    // FIXED: Enforce integer check here
+    if (!Number.isInteger(birthYear) || birthYear <= 0) {
       return res
         .status(400)
-        .json({ error: "birthYear must be a positive number." });
+        .json({ error: "birthYear must be a positive integer." });
     }
 
     const existingAuthor = await getAuthorByIdFromDb(id);

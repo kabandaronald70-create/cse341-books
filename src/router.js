@@ -225,6 +225,10 @@ router.get("/authors", getAllAuthors);
  *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Unable to retrieve author
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get("/authors/:id", getAuthorById);
 
@@ -243,10 +247,22 @@ router.get("/authors/:id", getAuthorById);
  *     responses:
  *       201:
  *         description: Author created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Author'
  *       400:
  *         description: Invalid input or duplicate ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Unable to create author
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.post("/authors", createAuthor);
 
@@ -283,10 +299,22 @@ router.post("/authors", createAuthor);
  *               $ref: '#/components/schemas/Author'
  *       400:
  *         description: Invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Author not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Unable to update author
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.put("/authors/:id", updateAuthor);
 
@@ -307,10 +335,22 @@ router.put("/authors/:id", updateAuthor);
  *         description: Author deleted
  *       404:
  *         description: Author not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       409:
  *         description: Author still has books
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Unable to delete author
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.delete("/authors/:id", deleteAuthor);
 
