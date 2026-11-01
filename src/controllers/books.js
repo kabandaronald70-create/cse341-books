@@ -46,6 +46,7 @@ const createBookHandler = async (req, res) => {
         .json({ error: "Missing or invalid required fields." });
     }
 
+    // Duplicate check (Application-level)
     const existingBook = await getBookById(id);
     if (existingBook)
       return res.status(400).json({ error: "Book id already exists." });
@@ -56,8 +57,21 @@ const createBookHandler = async (req, res) => {
         .status(400)
         .json({ error: "authorId does not match an existing author." });
 
-    const newBook = await createBook({ id, authorId, title, publicationDate });
-    return res.status(201).json(newBook);
+    try {
+      const newBook = await createBook({
+        id,
+        authorId,
+        title,
+        publicationDate,
+      });
+      return res.status(201).json(newBook);
+    } catch (dbError) {
+      // Catch MongoDB Duplicate Key Error (Race Condition)
+      if (dbError.code === 11000) {
+        return res.status(400).json({ error: "Book id already exists." });
+      }
+      throw dbError;
+    }
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
   }

@@ -57,14 +57,23 @@ const createAuthor = async (req, res) => {
         .json({ error: "birthYear must be a positive integer." });
     }
 
-    // Duplicate check
+    // Duplicate check (Application-level)
     const existingAuthor = await getAuthorByIdFromDb(id);
     if (existingAuthor) {
       return res.status(400).json({ error: "Author id already exists." });
     }
 
-    const createdAuthor = await createAuthorFromDb({ id, name, birthYear });
-    return res.status(201).json(createdAuthor);
+    try {
+      const createdAuthor = await createAuthorFromDb({ id, name, birthYear });
+      return res.status(201).json(createdAuthor);
+    } catch (dbError) {
+      // Catch MongoDB Duplicate Key Error (Race Condition)
+      if (dbError.code === 11000) {
+        return res.status(400).json({ error: "Author id already exists." });
+      }
+      // If it's a different database error, throw it to the outer catch
+      throw dbError;
+    }
   } catch (error) {
     return res.status(500).json({ error: "Unable to create author." });
   }
@@ -91,7 +100,6 @@ const updateAuthor = async (req, res) => {
       return res.status(400).json({ error: "Name cannot be empty." });
     }
 
-    // FIXED: Enforce integer check here
     if (!Number.isInteger(birthYear) || birthYear <= 0) {
       return res
         .status(400)
