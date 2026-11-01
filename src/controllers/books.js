@@ -28,6 +28,11 @@ const getBookByIdHandler = async (req, res) => {
 
 const createBookHandler = async (req, res) => {
   try {
+    // Check for body BEFORE destructuring
+    if (!req.body) {
+      return res.status(400).json({ error: "Request body is required." });
+    }
+
     const { id, authorId, title, publicationDate } = req.body;
 
     // Strict validation: check existence AND data types
@@ -79,6 +84,11 @@ const createBookHandler = async (req, res) => {
 
 const updateBookHandler = async (req, res) => {
   try {
+    // Check for body BEFORE destructuring
+    if (!req.body) {
+      return res.status(400).json({ error: "Request body is required." });
+    }
+
     const { id } = req.params;
     const { authorId, title, publicationDate } = req.body;
 

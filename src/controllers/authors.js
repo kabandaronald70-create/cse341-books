@@ -31,9 +31,14 @@ const getAuthorById = async (req, res) => {
 
 const createAuthor = async (req, res) => {
   try {
+    // Check for body BEFORE destructuring
+    if (!req.body) {
+      return res.status(400).json({ error: "Request body is required." });
+    }
+
     const { id, name, birthYear } = req.body;
 
-    // Strict validation: check existence AND data types
+    // Strict validation
     if (
       !id ||
       typeof id !== "string" ||
@@ -71,7 +76,6 @@ const createAuthor = async (req, res) => {
       if (dbError.code === 11000) {
         return res.status(400).json({ error: "Author id already exists." });
       }
-      // If it's a different database error, throw it to the outer catch
       throw dbError;
     }
   } catch (error) {
@@ -81,10 +85,15 @@ const createAuthor = async (req, res) => {
 
 const updateAuthor = async (req, res) => {
   try {
+    // Check for body BEFORE destructuring
+    if (!req.body) {
+      return res.status(400).json({ error: "Request body is required." });
+    }
+
     const { id } = req.params;
     const { name, birthYear } = req.body;
 
-    // Strict validation: check existence AND data types
+    // Strict validation
     if (
       !name ||
       typeof name !== "string" ||
@@ -127,7 +136,6 @@ const deleteAuthor = async (req, res) => {
       return res.status(404).json({ error: "Author not found." });
     }
 
-    // Relationship check
     if (await authorHasBooks(id)) {
       return res.status(409).json({
         error: "Author cannot be deleted because they still have books.",
@@ -135,7 +143,7 @@ const deleteAuthor = async (req, res) => {
     }
 
     await deleteAuthorFromDb(id);
-    return res.status(204).send(); // 204 No Content
+    return res.status(204).send();
   } catch (error) {
     return res.status(500).json({ error: "Unable to delete author." });
   }
